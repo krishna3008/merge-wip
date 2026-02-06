@@ -1,0 +1,49 @@
+# Worker POD Deployment Template
+# Create one deployment per project by replacing PROJECT_ID and PROJECT_NAME
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-PROJECT_NAME
+  namespace: merge-assist
+  labels:
+    app: worker
+    project: PROJECT_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+      project: PROJECT_NAME
+  template:
+    metadata:
+      labels:
+        app: worker
+        project: PROJECT_NAME
+    spec:
+      containers:
+      - name: worker
+        image: merge-assist/worker:latest
+        args: ["PROJECT_ID"]
+        env:
+        - name: DB_HOST
+          value: postgres-service
+        - name: REDIS_HOST
+          value: redis-service
+        - name: PROJECT_ID
+          value: "PROJECT_ID"
+        envFrom:
+        - secretRef:
+            name: merge-assist-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# Example usage:
+# Replace PROJECT_ID with actual UUID and PROJECT_NAME with project name
+# kubectl apply -f worker-example-project.yaml

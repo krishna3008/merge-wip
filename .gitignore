@@ -1,0 +1,91 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+*.out
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.hypothesis/
+
+# Secrets
+secrets/
+*.enc
+local_secrets.enc
+
+# Docker
+*.tar
+
+# Node (Frontend)
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env.local
+
+# Kubernetes secrets (only template should be committed)
+k8s/secrets-values.yaml
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.tfvars
+
+# Backups
+backup-*.sql
+backup-*.sql.gz
+
+# AI artifacts (conversation-specific, not project code)
+.gemini/
+
+# OS specific
+Thumbs.db

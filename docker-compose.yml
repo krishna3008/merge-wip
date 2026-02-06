@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13
+    container_name: merge-assist-db
+    environment:
+      POSTGRES_USER: merge_assist
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: merge_assist
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U merge_assist"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7
+    container_name: merge-assist-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: api/Dockerfile
+    container_name: merge-assist-api
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=merge_assist
+      - DB_PASSWORD=password
+      - DB_NAME=merge_assist
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SECRETS_PROVIDER=local
+      - MASTER_PASSWORD=dev-master-password
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend
+      - secrets_data:/app/secrets
+
+  # Watcher Service
+  watcher:
+    build:
+      context: ./backend
+      dockerfile: services/watcher/Dockerfile
+    container_name: merge-assist-watcher
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=merge_assist
+      - DB_PASSWORD=password
+      - DB_NAME=merge_assist
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - GITLAB_URL=${GITLAB_URL}
+      - GITLAB_TOKEN=${GITLAB_TOKEN}
+      - SECRETS_PROVIDER=local
+      - WATCHER_POLLING_INTERVAL=300
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app/backend
+      - secrets_data:/app/secrets
+
+  # Listener Service
+  listener:
+    build:
+      context: ./backend
+      dockerfile: services/listener/Dockerfile
+    container_name: merge-assist-listener
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=merge_assist
+      - DB_PASSWORD=password
+      - DB_NAME=merge_assist
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SECRETS_PROVIDER=local
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app/backend
+      - secrets_data:/app/secrets
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: merge-assist-frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./frontend/src:/app/src
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  secrets_data:
