@@ -25,6 +25,9 @@ This guide covers all testing strategies, how to run tests, and how to create ne
 
 ```
         ┌───────────┐
+        │   System  │  ← Slowest, full environment
+        │    (5%)   │     Real external services
+        ├───────────┤
         │    E2E    │  ← Slow, expensive, few tests
         │  (10%)    │     Complete workflows
         ├───────────┤
@@ -32,7 +35,7 @@ This guide covers all testing strategies, how to run tests, and how to create ne
         │  (30%)    │     Service interactions
         ├───────────┤
         │   Unit    │  ← Fast, cheap, many tests
-        │  (60%)    │     Individual functions
+        │  (55%)    │     Individual functions
         └───────────┘
 ```
 
@@ -49,10 +52,18 @@ This guide covers all testing strategies, how to run tests, and how to create ne
 - Medium execution (seconds)
 
 **End-to-End Tests** (`tests/e2e/`):
-- Test complete workflows
+- Test complete workflows within the application
 - Real HTTP requests
-- All services running
+- All application services running
 - Slow execution (minutes)
+
+**System Tests** (`tests/system/`):
+- Validate the *complete* system including external integrations
+- Real GitLab (or high-fidelity mock) interaction
+- Full deployment environment consistency check
+- Slowest execution
+- Run before major releases
+- [Read System Test Guide](../tests/system/README.md)
 
 ---
 
