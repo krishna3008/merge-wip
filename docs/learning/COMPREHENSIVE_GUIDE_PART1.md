@@ -986,4 +986,6 @@ Decoded payload: {'user_id': '123', 'username': 'john', 'roles': ['admin'], 'exp
 
 ---
 
-This comprehensive guide continues with detailed explanations for all remaining components. Would you like me to continue with the full guide covering all parts?
+## What's Next?
+
+In [Part 2: RBAC & Secrets Management](COMPREHENSIVE_GUIDE_PART2.md), we will build the Role-Based Access Control system to protect endpoints and implement the Secrets Manager to handle sensitive credentials securely.
